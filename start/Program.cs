@@ -16,6 +16,7 @@ namespace StorageQueueApp
             // Add code to create QueueClient and Storage Queue Here
             string connectionString = Environment.GetEnvironmentVariable("STORAGE_CONNECTION_STRING");
             QueueClient queueClient = new QueueClient(connectionString, "newsqueue");
+            await queueClient.CreateIfNotExistsAsync();
 
             bool exitProgram = false;
             while (exitProgram == false)
@@ -46,7 +47,19 @@ namespace StorageQueueApp
 
         static async Task SendMessageAsync(QueueClient queueClient)
         {
-            throw new NotImplementedException();
+            // Get input from user
+            Console.WriteLine("Enter headline: ");
+            string headline = Console.ReadLine();
+            Console.WriteLine("Enter location: ");
+            string location = Console.ReadLine();
+            NewsArticle article = new NewsArticle() { Headline = headline, Location = location };
+
+            var message = JsonSerializer.Serialize(article);
+            var response = await queueClient.SendMessageAsync(message);
+            SendReceipt sendReceipt = response.Value;
+
+            Console.WriteLine($"Message sent.  Message id={sendReceipt.MessageId}  Expiration time={sendReceipt.ExpirationTime}");
+            Console.WriteLine();
         }
 
 
