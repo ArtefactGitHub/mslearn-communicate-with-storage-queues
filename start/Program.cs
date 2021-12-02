@@ -14,6 +14,8 @@ namespace StorageQueueApp
         static async Task Main(string[] args)
         {
             // Add code to create QueueClient and Storage Queue Here
+            string connectionString = Environment.GetEnvironmentVariable("STORAGE_CONNECTION_STRING");
+            QueueClient queueClient = new QueueClient(connectionString, "newsqueue");
 
             bool exitProgram = false;
             while (exitProgram == false)
