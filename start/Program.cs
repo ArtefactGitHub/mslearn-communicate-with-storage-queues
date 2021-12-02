@@ -65,13 +65,32 @@ namespace StorageQueueApp
 
         static async Task PeekMessageAsync(QueueClient queueClient)
         {
-            throw new NotImplementedException();
+            Response<PeekedMessage> response = await queueClient.PeekMessageAsync();
+            PeekedMessage message = response.Value;
+
+            Console.WriteLine($"Message id  : {message.MessageId}");
+            Console.WriteLine($"Inserted on : {message.InsertedOn}");
+            Console.WriteLine("We are only peeking at the message, so another consumer could dequeue this message");
         }
 
 
         static async Task ReceiveMessageAsync(QueueClient queueClient)
         {
-            throw new NotImplementedException();
+            Response<QueueMessage> response = await queueClient.ReceiveMessageAsync();
+            QueueMessage message = response.Value;
+
+            Console.WriteLine($"Message id    : {message.MessageId}");
+            Console.WriteLine($"Inserted on   : {message.InsertedOn}");
+            Console.WriteLine($"Message (raw) : {message.Body}");
+
+            NewsArticle article = message.Body.ToObjectFromJson<NewsArticle>();
+            Console.WriteLine("News Article");
+            Console.WriteLine($"-  Headline : {article.Headline}");
+            Console.WriteLine($"-  Location : {article.Location}");
+
+            Console.WriteLine("The processing for this message is just printing it out, so now it will be deleted");
+            await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt);
+            Console.WriteLine($"Message deleted");
         }
     }
 
